@@ -2,13 +2,14 @@ import express, { request } from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
+import serverless from "serverless-http";
 import todosRouter from "./routes/todos.js";
 const app = express();
 dotenv.config();
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-app.use("/todos", todosRouter);
+
 const mongodb = process.env.MONGODB
   .replace("useName", process.env.USR_NAME)
   .replace("usrPass", process.env.USR_PASS)
@@ -19,8 +20,6 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5001;
-
-console.log(process.env);
 
 mongoose
   .connect(mongodb, { useUnifiedTopology: true, useNewUrlParser: true })
@@ -34,3 +33,13 @@ mongoose
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
+
+if (process.env.NODE_ENV == 'development')
+  app.use("/todos", todosRouter);
+
+if (process.env.NODE_ENV == 'production') {
+  app.use(`/.netlify/functions/api`, todosRouter);
+  module.exports = app;
+  module.exports.handler = serverless(app);
+}
+
