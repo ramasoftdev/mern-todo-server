@@ -10,14 +10,11 @@ app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-console.log(process.env)
-console.log(`process.env.MONGODB: ${process.env.MONGODB}`)
-console.log(`process.env.USR_PASS: ${process.env.USR_PASS}`)
-console.log(`process.env.USR_NAME: ${process.env.USR_NAME}`)
-
 const mongodb = process.env.MONGODB.replace("$usrName", process.env.USR_NAME)
   .replace("$usrPass", process.env.USR_PASS)
   .replace("$dbName", process.env.DB_NAME);
+
+console.log(mongodb)
 
 mongoose
   .connect(mongodb, { useUnifiedTopology: true, useNewUrlParser: true })
